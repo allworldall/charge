@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="unionChargeConsume:war">
+    <output-path>$PROJECT_DIR$/target</output-path>
+    <root id="archive" name="unionChargeConsume.war">
+      <element id="artifact" artifact-name="unionChargeConsume:war exploded" />
+    </root>
+  </artifact>
+</component>

@@ -1,0 +1,91 @@
+-- Create table
+create table LOG_ACTIVITY_MQ_PUSH
+(
+  game_id          NUMBER not null,
+  user_id          VARCHAR2(50) not null,
+  user_name        VARCHAR2(100) not null,
+  gateway_id       NUMBER(7) not null,
+  chargechannel_id NUMBER(20),
+  discount         NUMBER(20,2),
+  charge_subjectid NUMBER(10),
+  charge_money     NUMBER(20,2) not null,
+  charge_amount    NUMBER(20) not null,
+  charge_ordercode VARCHAR2(100) not null,
+  charge_detailid  NUMBER(20) not null,
+  charge_type      NUMBER(5) not null,
+  money_type       NUMBER(5),
+  attach_code      VARCHAR2(100),
+  role_id          NUMBER(20),
+  charge_time      VARCHAR2(30),
+  server_ip        VARCHAR2(30),
+  client_ip        VARCHAR2(30),
+  push_result      NUMBER(5)
+)
+tablespace ECHARGING_USER01
+  pctfree 10
+  initrans 1
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );
+-- Add comments to the table 
+comment on table LOG_ACTIVITY_MQ_PUSH
+  is '活动推送MQ记录表';
+-- Add comments to the columns 
+comment on column LOG_ACTIVITY_MQ_PUSH.game_id
+  is '游戏ID';
+comment on column LOG_ACTIVITY_MQ_PUSH.user_id
+  is '通行证ID';
+comment on column LOG_ACTIVITY_MQ_PUSH.user_name
+  is '通行证名称';
+comment on column LOG_ACTIVITY_MQ_PUSH.gateway_id
+  is '网关ID';
+comment on column LOG_ACTIVITY_MQ_PUSH.chargechannel_id
+  is '充值渠道ID';
+comment on column LOG_ACTIVITY_MQ_PUSH.discount
+  is '充值渠道折扣';
+comment on column LOG_ACTIVITY_MQ_PUSH.charge_subjectid
+  is '充值游戏的货币类型';
+comment on column LOG_ACTIVITY_MQ_PUSH.charge_money
+  is '充值货币数';
+comment on column LOG_ACTIVITY_MQ_PUSH.charge_amount
+  is '充值元宝数';
+comment on column LOG_ACTIVITY_MQ_PUSH.charge_ordercode
+  is '联运订单号';
+comment on column LOG_ACTIVITY_MQ_PUSH.charge_detailid
+  is '充值订单号';
+comment on column LOG_ACTIVITY_MQ_PUSH.charge_type
+  is '充值类型1直充';
+comment on column LOG_ACTIVITY_MQ_PUSH.money_type
+  is '货币类型 1 人民币';
+comment on column LOG_ACTIVITY_MQ_PUSH.attach_code
+  is '透传字段信息';
+comment on column LOG_ACTIVITY_MQ_PUSH.role_id
+  is '角色ID';
+comment on column LOG_ACTIVITY_MQ_PUSH.charge_time
+  is '下单时间 (时间戳，秒级)';
+comment on column LOG_ACTIVITY_MQ_PUSH.server_ip
+  is '服务器IP';
+comment on column LOG_ACTIVITY_MQ_PUSH.client_ip
+  is '请求IP';
+comment on column LOG_ACTIVITY_MQ_PUSH.push_result
+  is '推送结果（成功为空，不成功有记录，腾讯，php请求验证失败，也会记录）';
+-- Create/Recreate primary, unique and foreign key constraints 
+alter table LOG_ACTIVITY_MQ_PUSH
+  add constraint LOG_ACTIVITY_MQ_PUSH_PK primary key (CHARGE_ORDERCODE, CHARGE_DETAILID)
+  using index 
+  tablespace ECHARGING_USER01
+  pctfree 10
+  initrans 2
+  maxtrans 255
+  storage
+  (
+    initial 64K
+    next 1M
+    minextents 1
+    maxextents unlimited
+  );

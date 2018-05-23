@@ -1,0 +1,8 @@
+Consume项目：
+1.spring-dubbo-consumer.xml 中有dubbo配置
+
+2.log4j.properties 中有日志相应配置，其中log4j.appender.R.File  的配置为 日志的生成地址
+
+注：该配置文件，需要在服务器中配置一个环境变量 CHARGE_CONFIG ，
+    来指定spring-dubbo-consumer.xml和log4j.properties的位置，
+	例：/home/charge_config

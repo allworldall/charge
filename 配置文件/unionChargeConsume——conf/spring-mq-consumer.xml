@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<bean id="chargeServerDaoImpl" class="com.linekong.union.charge.consume.service.invoke.impl.ChargeServerDaoImpl" />	
+		
+	<bean id="queryServerDaoImpl" class="com.linekong.union.charge.consume.service.invoke.impl.QueryServerDaoImpl" />
+	
+	<bean id="cacheServerDaoImpl" class="com.linekong.union.charge.consume.service.invoke.impl.CacheServerDaoImpl" />
+	
+    <bean id ="chargeInvokeRabbitMQ" class="com.linekong.union.charge.consume.rabbitmq.ChargeInvokeRabbitMQ" >
+        <property name="exchangeName" value="CHARGE_EXCHANGE" />
+        <property name="chargeQueue" value="charge_queue"/>
+        <property name="chargeActivity" value="activity_queue" />
+        <property name="chargeRoutKey" value="charge" />
+        <property name="activityRoutKey" value="activity" />
+    </bean>
+	<bean id="chargeToGameSuccessListioner" class="com.linekong.union.charge.consume.rabbitmq.ChargeToGameSuccessListioner" >      
+        <property name="exchangeName" value="CHARGE_UNION_EXCHANGE" />
+        <property name="queueName" value="charge_union_queue" />
+        <property name="routKey" value="chargeConfirm" />
+        <property name="basicQos" value="50" />
+		<property name="chargeServerDao" ref="chargeServerDaoImpl"/>
+		<property name="queryServerDao" ref="queryServerDaoImpl" />
+    </bean> 
+	<bean id="mqConnetionConfigure" class="com.linekong.union.charge.consume.util.MQConnetionConfigure" lazy-init="true">
+		<property name="host" value="192.168.252.149" />
+        <property name="port" value="5672"/>
+        <property name="userName" value="mqadmin" />
+        <property name="password" value="ad8ccf6ab124494ef73c8640d55708a" />
+        <property name="connectionTimeOut" value="5000" />
+		<property name="requestedHeartbeat" value="5000" />
+	</bean>
+	<bean id="sendChargeInfoConfig" class="com.linekong.union.charge.consume.util.config.SendChargeInfoToKafkaConfig" >
+		<property name="url" value="http://192.168.84.22:8080/sinkkafka" />
+		<property name="topic" value="log_charge_common" />
+		<property name="key" value="charge_success_notice" />
+	</bean>
+	
+</beans>

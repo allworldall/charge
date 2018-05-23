@@ -1,0 +1,10 @@
+Provider 项目
+1.配置到服务器上是一个jar包，它依赖于  lib  ，所以需要将provider的jar包与lib放置在统一目录下。
+
+2.charge.conf，配置了Provider 项目的applicationContext.xml与log4j.properties的配置文件目录。
+	注：执行Provider 的时候需要跟着  charge.conf  的路径  为参数
+
+3.applicationContext.xml 中有zookeeper 注册服务、dubbo配置 、数据库的dataSource配置（为druid）
+
+4.log4j.properties 中有日志相应配置，其中log4j.appender.R.File  的配置为 日志的生成地址
+

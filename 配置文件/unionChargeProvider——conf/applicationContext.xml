@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ - Copyright 1999-2011 Alibaba Group.
+ -  
+ - Licensed under the Apache License, Version 2.0 (the "License");
+ - you may not use this file except in compliance with the License.
+ - You may obtain a copy of the License at
+ -  
+ -      http://www.apache.org/licenses/LICENSE-2.0
+ -  
+ - Unless required by applicable law or agreed to in writing, software
+ - distributed under the License is distributed on an "AS IS" BASIS,
+ - WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ - See the License for the specific language governing permissions and
+ - limitations under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+	<!-- provider 应用信息，用于计算依赖关系 -->
+    <dubbo:application name="unionCharge-provider" owner="programmer" organization="dubbo"/>
+	<!-- zookeeper 注册服务 -->
+    <dubbo:registry address="zookeeper://192.168.50.221:2180"/>
+	<!-- 多台服务 -->
+	<!--<dubbo:registry address="zookeeper://192.168.50.221:2180?backup:ip:port,ip:port"/>-->
+    <!-- 用dubbo协议在20880端口暴露服务 -->
+    <dubbo:protocol name="dubbo" port="20880" />
+    <!-- begin 声明需要暴露的服务接口 -->
+    <dubbo:service interface="com.linekong.union.charge.rpc.charge.ChargeServiceInterface" ref="chargeService"></dubbo:service>
+    <dubbo:service interface="com.linekong.union.charge.rpc.charge.QueryChargeServiceInterface" ref="queryChargeService"></dubbo:service>
+    <!-- end   声明需要暴露的服务接口 -->
+    
+    <!-- begin 和本地bean一样实现服务 -->
+    <bean id="chargeService" class="com.linekong.union.charge.provider.service.ChargeServiceImpl"></bean>
+    <bean id="queryChargeService" class="com.linekong.union.charge.provider.service.QueryChargeServiceImpl"></bean>
+    <!-- end   和本地bean一样实现服务 -->
+    <!-- begin druid 数据库连接池配置 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+    	 <property name="url" value="jdbc:oracle:thin:@192.168.50.221:1522:esuite" />
+     	 <property name="username" value="echarging" />
+         <property name="password" value="IZuK0AJAyY1TcND3uSzfAMOQe+bKbeIwpduLS+ftZKhev/E1IomLueTmmXmG9yB5xifcz20YyMjKjvLvi5thAA=="/>
+         <!-- 初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时 -->
+         <property name="initialSize" value="20" />
+         <!-- 最大连接池数量 -->
+     	 <property name="maxActive" value="50" />
+     	 <!-- 最小连接池数量 -->
+     	 <property name="minIdle" value="20" />
+     	 <!-- 获取连接时最大等待时间，单位毫秒。配置了maxWait之后，缺省启用公平锁，并发效率会有所下降，如果需要可以通过配置useUnfairLock属性为true使用非公平锁。 -->
+     	 <property name="maxWait" value="60000" />
+     	 <!-- 是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle。在mysql下建议关闭。 -->
+     	 <property name="poolPreparedStatements" value="true" />
+     	 <!-- 要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。在Druid中，不会存在Oracle下PSCache占用内存过多的问题，可以把这个数值配置大一些，比如说100 -->
+     	 <property name="maxOpenPreparedStatements" value="100" />
+     	 <!-- 单位：秒，检测连接是否有效的超时时间。底层调用jdbc Statement对象的void setQueryTimeout(int seconds)方法 -->
+     	 <property name="validationQueryTimeout" value="60" />
+     	 <!-- 用来检测连接是否有效的sql，要求是一个查询语句。如果validationQuery为null，testOnBorrow、testOnReturn、testWhileIdle都不会其作用。 -->
+     	 <property name="validationQuery" value="SELECT 'x' FROM DUAL" />
+     	 <!-- 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。 -->
+     	 <property name="testWhileIdle" value="true" />
+     	 <!-- 有两个含义：1) Destroy线程会检测连接的间隔时间，如果连接空闲时间大于等于minEvictableIdleTimeMillis则关闭物理连接 2) testWhileIdle的判断依据，详细看testWhileIdle属性的说明 -->
+     	 <property name="timeBetweenEvictionRunsMillis" value="60000" />
+     	 <!-- 连接保持空闲而不被驱逐的最长时间 -->
+     	 <property name="minEvictableIdleTimeMillis" value="300000" />
+     	 <!-- 属性类型是字符串，通过别名的方式配置扩展插件，常用的插件有：监控统计用的filter:stat 日志用的filter:log4j 防御sql注入的filter:wall -->
+     	 <property name="filters" value="stat,config" />
+     	 <!-- 设置密码加密 -->
+     	 <property name="connectionProperties" value="config.decrypt=true" />
+    </bean>
+    <bean id="dataSource_pm" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+    	 <property name="url" value="jdbc:oracle:thin:@192.168.50.221:1522:esuite" />
+     	 <property name="username" value="plmgr" />
+         <property name="password" value="N4GnWCHHIX/UGQBT0NuBFVxfV39GqFevehrLSVqn1nVaejYOfWA6x8zS3jI6obxSvNcU+/ZHz/igwwXFaw9XTg==" />
+         <!-- 初始化时建立物理连接的个数。初始化发生在显示调用init方法，或者第一次getConnection时 -->
+         <property name="initialSize" value="20" />
+         <!-- 最大连接池数量 -->
+     	 <property name="maxActive" value="50" />
+     	 <!-- 最小连接池数量 -->
+     	 <property name="minIdle" value="20" />
+     	 <!-- 获取连接时最大等待时间，单位毫秒。配置了maxWait之后，缺省启用公平锁，并发效率会有所下降，如果需要可以通过配置useUnfairLock属性为true使用非公平锁。 -->
+     	 <property name="maxWait" value="60000" />
+     	 <!-- 是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle。在mysql下建议关闭。 -->
+     	 <property name="poolPreparedStatements" value="true" />
+     	 <!-- 要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。在Druid中，不会存在Oracle下PSCache占用内存过多的问题，可以把这个数值配置大一些，比如说100 -->
+     	 <property name="maxOpenPreparedStatements" value="100" />
+     	 <!-- 单位：秒，检测连接是否有效的超时时间。底层调用jdbc Statement对象的void setQueryTimeout(int seconds)方法 -->
+     	 <property name="validationQueryTimeout" value="60" />
+     	 <!-- 用来检测连接是否有效的sql，要求是一个查询语句。如果validationQuery为null，testOnBorrow、testOnReturn、testWhileIdle都不会其作用。 -->
+     	 <property name="validationQuery" value="SELECT 'x' FROM DUAL" />
+     	 <!-- 建议配置为true，不影响性能，并且保证安全性。申请连接的时候检测，如果空闲时间大于timeBetweenEvictionRunsMillis，执行validationQuery检测连接是否有效。 -->
+     	 <property name="testWhileIdle" value="true" />
+     	 <!-- 有两个含义：1) Destroy线程会检测连接的间隔时间，如果连接空闲时间大于等于minEvictableIdleTimeMillis则关闭物理连接 2) testWhileIdle的判断依据，详细看testWhileIdle属性的说明 -->
+     	 <property name="timeBetweenEvictionRunsMillis" value="60000" />
+     	 <!-- 连接保持空闲而不被驱逐的最长时间 -->
+     	 <property name="minEvictableIdleTimeMillis" value="300000" />
+     	 <!-- 属性类型是字符串，通过别名的方式配置扩展插件，常用的插件有：监控统计用的filter:stat 日志用的filter:log4j 防御sql注入的filter:wall -->
+     	 <property name="filters" value="stat,config" />
+     	 <!-- 设置密码加密 -->
+     	 <property name="connectionProperties" value="config.decrypt=true" />
+    </bean>
+    <!-- end   druid 数据库连接池配置 -->
+    <!-- 数据源链接配置信息-->
+    <!-- 
+    <bean id="dataSource"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.252.36:1522:uosdev" />
+		<property name="acquireRetryAttempts" value="2"/>
+		<property name="checkoutTimeout" value="30000"/>
+		<property name="initialPoolSize" value="2"/>     
+        <property name="minPoolSize" value="2"/>     
+        <property name="maxPoolSize" value="15" />  
+        <property name="acquireIncrement" value="0" />
+        <property name="idleConnectionTestPeriod" value="60"/>
+		<property name="properties">
+			<bean
+				class="com.linekong.union.charge.provider.db.DataSourcePropertiesFactory"
+				factory-method="getProperties">
+				<constructor-arg type="java.lang.String">
+					<value>echarging</value>
+				</constructor-arg>
+				<constructor-arg type="java.lang.String">
+					<value>510a19e9231f7363</value>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+	 -->
+	<!-- 平台管理系统数据源 -->
+	<!-- 
+	<bean id="dataSource_pm"
+		class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="oracle.jdbc.driver.OracleDriver" />
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.252.36:1522:uosdev" />
+		<property name="acquireRetryAttempts" value="2"/>
+		<property name="checkoutTimeout" value="30000"/>
+		<property name="initialPoolSize" value="2"/>     
+        <property name="minPoolSize" value="2"/>     
+        <property name="maxPoolSize" value="15" />  
+        <property name="acquireIncrement" value="0" />
+        <property name="idleConnectionTestPeriod" value="60"/>
+		<property name="properties">
+			<bean
+				class="com.linekong.union.charge.provider.db.DataSourcePropertiesFactory"
+				factory-method="getProperties">
+				<constructor-arg type="java.lang.String">
+					<value>plmgr</value>
+				</constructor-arg>
+				<constructor-arg type="java.lang.String">
+					<value>3291dbccbd29e3315f3a9d5ce7f24026</value>
+				</constructor-arg>
+			</bean>
+		</property>
+	</bean>
+    -->
+	<bean class="com.linekong.union.charge.provider.db.DataSourceConfigureFactory">
+    	<property name="dataSource" ref="dataSource"></property>
+    	<property name="dataSource_pm" ref="dataSource_pm"></property>
+    </bean>
+    <!-- 定义日志切面处理注解扫描 -->
+	<context:component-scan base-package="com.linekong.union.charge.provider"/>
+     <!-- 定义日志aop切面 -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+</beans>
