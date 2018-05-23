@@ -1,6 +1,0 @@
----20150126---
-提示：从商户自服务系统中取出的key 是 PKCS1.
-1、本demo签名验签使用的rsa私钥格式为pkcs8，如果爱贝提供的rsa私钥为pkcs1，则需要使用cptools工具，将pkcs1私钥转为pkcs8格式
-2、cptools工具使用说明：运行cptools.exe，输入pkcs1私钥，按enter键，输出的便是pkcs8私钥
-3、rsa公钥，不需要转换，只需要转换私钥
-
